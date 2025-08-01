@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 
@@ -18,7 +17,24 @@ type server struct {
 
 // GetState implementation
 func (s *server) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
+	log.Println(in)
 	return &pb.GetResponse{}, nil
+}
+
+func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb.WatchResponse]) error {
+	log.Println(in)
+	for {
+		select {
+		// Exit on stream context done
+		case <-stream.Context().Done():
+			return nil
+		default:
+			err := stream.Send(&pb.WatchResponse{})
+			if err != nil {
+				log.Println(err.Error())
+			}
+		}
+	}
 }
 
 func main() {
@@ -34,7 +50,7 @@ func main() {
 
 	s := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterStateServer(s, &server{})
-	fmt.Println("Starting server at port 50000...")
+	log.Println("Starting server at port 50000...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
