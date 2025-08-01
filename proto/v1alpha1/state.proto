@@ -18,10 +18,10 @@ enum EventType {
 // Event is emitted when resource changes.
 message Event {
     Resource resource = 1;
-    Resource old = 3;
-    optional string error = 4;
-    EventType event_type = 2;
-    optional bytes bookmark = 5;
+    Resource old = 2;
+    optional string error = 3;
+    optional bytes bookmark = 4;
+    EventType event_type = 5;
 }
 
 service State {

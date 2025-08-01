@@ -32,7 +32,9 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 			err := stream.Send(&pb.WatchResponse{
 				Event: []*pb.Event{
 					{
-						Resource:  &pb.Resource{},
+						Resource: &pb.Resource{
+							Metadata: &pb.Metadata{},
+						},
 						EventType: pb.EventType_CREATED,
 					},
 				},
