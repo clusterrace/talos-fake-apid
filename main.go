@@ -29,7 +29,14 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 		case <-stream.Context().Done():
 			return nil
 		default:
-			err := stream.Send(&pb.WatchResponse{})
+			err := stream.Send(&pb.WatchResponse{
+				Event: []*pb.Event{
+					{
+						Resource:  &pb.Resource{},
+						EventType: pb.EventType_CREATED,
+					},
+				},
+			})
 			if err != nil {
 				log.Println(err.Error())
 			}

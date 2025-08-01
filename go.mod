@@ -14,7 +14,7 @@ require (
 )
 
 require (
-	github.com/cosi-project/runtime v1.10.7
+	github.com/cosi-project/runtime v1.10.2
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
