@@ -33,7 +33,11 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 				Event: []*pb.Event{
 					{
 						Resource: &pb.Resource{
-							Metadata: &pb.Metadata{},
+							Metadata: &pb.Metadata{
+								Version: "1",
+								Phase:   "running",
+							},
+							Spec: &pb.Spec{},
 						},
 						EventType: pb.EventType_CREATED,
 					},
