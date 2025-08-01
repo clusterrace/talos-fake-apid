@@ -21,10 +21,6 @@ func (s *server) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, e
 	return &pb.GetResponse{}, nil
 }
 
-func (s *server) Watch(ctx context.Context, in *pb.WatchRequest) (grpc.ServerStreamingClient[pb.WatchResponse], error) {
-	
-}
-
 func main() {
 	lis, err := net.Listen("tcp", "0.0.0.0:50000")
 	if err != nil {
