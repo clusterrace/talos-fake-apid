@@ -12,18 +12,22 @@ import (
 	"github.com/cosi-project/runtime/pkg/resource/protobuf"
 )
 
-type server struct {
+type server2 struct {
 	v1alpha1.UnimplementedStateServer
 }
 
 // GetState implementation
-func (s *server) Get(ctx context.Context, in *v1alpha1.GetRequest) (*v1alpha1.GetResponse, error) {
+func (s *server2) Get(ctx context.Context, in *v1alpha1.GetRequest) (*v1alpha1.GetResponse, error) {
 	log.Println(in)
 	return &v1alpha1.GetResponse{}, nil
 }
 
-func (s *server) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingServer[v1alpha1.WatchResponse]) error {
+func (s *server2) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingServer[v1alpha1.WatchResponse]) error {
 	log.Println(in)
+	resource, _ := protobuf.CreateResource(ServiceType)
+	pb, _ := protobuf.FromResource(resource)
+
+	marshaled, _ := pb.Marshal()
 	for {
 		select {
 		// Exit on stream context done
@@ -33,13 +37,7 @@ func (s *server) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingSer
 			err := stream.Send(&v1alpha1.WatchResponse{
 				Event: []*v1alpha1.Event{
 					{
-						Resource: &v1alpha1.Resource{
-							Metadata: &v1alpha1.Metadata{
-								Version: "1",
-								Phase:   "running",
-							},
-							Spec: &v1alpha1.Spec{},
-						},
+						Resource:  marshaled,
 						EventType: v1alpha1.EventType_CREATED,
 					},
 				},
@@ -64,7 +62,7 @@ func main() {
 
 	s := grpc.NewServer(grpc.Creds(creds))
 	protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
-	s.RegisterService(&v1alpha1.State_ServiceDesc, &server{})
+	s.RegisterService(&v1alpha1.State_ServiceDesc, &server2{})
 	log.Println("Starting server at port 50000...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

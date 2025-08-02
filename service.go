@@ -27,6 +27,14 @@ func (o ServiceSpec) DeepCopy() ServiceSpec {
 	return cp
 }
 
+// NewService initializes a Service resource.
+func NewService(id resource.ID) *Service {
+	return typed.NewResource[ServiceSpec, ServiceExtension](
+		resource.NewMetadata(NamespaceName, ServiceType, id, resource.VersionUndefined),
+		ServiceSpec{},
+	)
+}
+
 // ServiceExtension provides auxiliary methods for Service.
 type ServiceExtension struct{}
 
