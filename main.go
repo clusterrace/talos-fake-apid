@@ -9,11 +9,13 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/cosi-project/runtime/api/v1alpha1"
+	"github.com/cosi-project/runtime/pkg/resource"
 	"github.com/cosi-project/runtime/pkg/resource/protobuf"
 )
 
 type server2 struct {
 	v1alpha1.UnimplementedStateServer
+	resource resource.Resource
 }
 
 // GetState implementation
@@ -24,11 +26,7 @@ func (s *server2) Get(ctx context.Context, in *v1alpha1.GetRequest) (*v1alpha1.G
 
 func (s *server2) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingServer[v1alpha1.WatchResponse]) error {
 	log.Println(in)
-	resource, err := protobuf.CreateResource(ServiceType)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	pb, err := protobuf.FromResource(resource)
+	pb, err := protobuf.FromResource(s.resource)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -68,8 +66,13 @@ func main() {
 		log.Fatalf("failed to load TLS credentials: %v", err)
 	}
 
+	resource, err := protobuf.CreateResource(ServiceType)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
 	s := grpc.NewServer(grpc.Creds(creds))
-	s.RegisterService(&v1alpha1.State_ServiceDesc, &server2{})
+	s.RegisterService(&v1alpha1.State_ServiceDesc, &server2{resource: resource})
 	log.Println("Starting server at port 50000...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
