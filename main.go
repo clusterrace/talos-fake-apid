@@ -24,10 +24,18 @@ func (s *server2) Get(ctx context.Context, in *v1alpha1.GetRequest) (*v1alpha1.G
 
 func (s *server2) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingServer[v1alpha1.WatchResponse]) error {
 	log.Println(in)
-	resource, _ := protobuf.CreateResource(ServiceType)
-	pb, _ := protobuf.FromResource(resource)
-
-	marshaled, _ := pb.Marshal()
+	resource, err := protobuf.CreateResource(ServiceType)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	pb, err := protobuf.FromResource(resource)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	marshaled, err := pb.Marshal()
+	if err != nil {
+		log.Println(err.Error())
+	}
 	for {
 		select {
 		// Exit on stream context done
