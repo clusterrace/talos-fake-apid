@@ -8,21 +8,21 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	pb "github.com/clusterrace/talos-fake-apid/proto/v1alpha1"
+	"github.com/cosi-project/runtime/api/v1alpha1"
 	"github.com/cosi-project/runtime/pkg/resource/protobuf"
 )
 
 type server struct {
-	pb.UnimplementedStateServer
+	v1alpha1.UnimplementedStateServer
 }
 
 // GetState implementation
-func (s *server) Get(ctx context.Context, in *pb.GetRequest) (*pb.GetResponse, error) {
+func (s *server) Get(ctx context.Context, in *v1alpha1.GetRequest) (*v1alpha1.GetResponse, error) {
 	log.Println(in)
-	return &pb.GetResponse{}, nil
+	return &v1alpha1.GetResponse{}, nil
 }
 
-func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb.WatchResponse]) error {
+func (s *server) Watch(in *v1alpha1.WatchRequest, stream grpc.ServerStreamingServer[v1alpha1.WatchResponse]) error {
 	log.Println(in)
 	for {
 		select {
@@ -30,11 +30,17 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 		case <-stream.Context().Done():
 			return nil
 		default:
-			err := stream.Send(&pb.WatchResponse{
-				Event: []*pb.Event{
+			err := stream.Send(&v1alpha1.WatchResponse{
+				Event: []*v1alpha1.Event{
 					{
-						Resource:  &pb.Resource{},
-						EventType: 0,
+						Resource: &v1alpha1.Resource{
+							Metadata: &v1alpha1.Metadata{
+								Version: "1",
+								Phase:   "running",
+							},
+							Spec: &v1alpha1.Spec{},
+						},
+						EventType: v1alpha1.EventType_CREATED,
 					},
 				},
 			})
@@ -46,7 +52,6 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 }
 
 func main() {
-	protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
 	lis, err := net.Listen("tcp", "0.0.0.0:50000")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -58,7 +63,8 @@ func main() {
 	}
 
 	s := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterStateServer(s, &server{})
+	protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
+	s.RegisterService(&v1alpha1.State_ServiceDesc, &server{})
 	log.Println("Starting server at port 50000...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
