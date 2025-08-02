@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/cosi-project/runtime/pkg/resource"
 	"github.com/cosi-project/runtime/pkg/resource/meta"
 	"github.com/cosi-project/runtime/pkg/resource/protobuf"
@@ -65,8 +63,8 @@ func (ServiceExtension) ResourceDefinition() meta.ResourceDefinitionSpec {
 }
 
 func init() {
-	err := protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
+	err := protobuf.RegisterResource(ServiceType, &Service{})
 	if err != nil {
-		log.Println(err)
+		panic(err)
 	}
 }
