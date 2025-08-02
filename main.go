@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	pb "github.com/clusterrace/talos-fake-apid/proto/v1alpha1"
+	"github.com/cosi-project/runtime/pkg/resource/protobuf"
 )
 
 type server struct {
@@ -32,14 +33,8 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 			err := stream.Send(&pb.WatchResponse{
 				Event: []*pb.Event{
 					{
-						Resource: &pb.Resource{
-							Metadata: &pb.Metadata{
-								Version: "1",
-								Phase:   "running",
-							},
-							Spec: &pb.Spec{},
-						},
-						EventType: pb.EventType_CREATED,
+						Resource:  &pb.Resource{},
+						EventType: 0,
 					},
 				},
 			})
@@ -51,6 +46,7 @@ func (s *server) Watch(in *pb.WatchRequest, stream grpc.ServerStreamingServer[pb
 }
 
 func main() {
+	protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
 	lis, err := net.Listen("tcp", "0.0.0.0:50000")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
