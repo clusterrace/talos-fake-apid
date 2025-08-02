@@ -1,10 +1,12 @@
 package main
 
 import (
+	"github.com/cosi-project/runtime/api/v1alpha1"
 	"github.com/cosi-project/runtime/pkg/resource"
 	"github.com/cosi-project/runtime/pkg/resource/meta"
 	"github.com/cosi-project/runtime/pkg/resource/protobuf"
 	"github.com/cosi-project/runtime/pkg/resource/typed"
+	"google.golang.org/protobuf/proto"
 )
 
 // ServiceType is type of Service resource.
@@ -26,6 +28,11 @@ type ServiceSpec struct {
 func (o ServiceSpec) DeepCopy() ServiceSpec {
 	var cp ServiceSpec = o
 	return cp
+}
+
+func (o ServiceSpec) MarshalProto() ([]byte, error) {
+	protoSpec := &v1alpha1.Spec{}
+	return proto.Marshal(protoSpec)
 }
 
 // NewService initializes a Service resource.
