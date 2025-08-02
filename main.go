@@ -69,7 +69,6 @@ func main() {
 	}
 
 	s := grpc.NewServer(grpc.Creds(creds))
-	protobuf.RegisterDynamic[ServiceSpec](ServiceType, &Service{})
 	s.RegisterService(&v1alpha1.State_ServiceDesc, &server2{})
 	log.Println("Starting server at port 50000...")
 	if err := s.Serve(lis); err != nil {
