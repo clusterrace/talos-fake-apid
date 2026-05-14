@@ -24,7 +24,9 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/protobuf/types/known/emptypb"
 
+	"github.com/siderolabs/talos/pkg/machinery/api/common"
 	"github.com/siderolabs/talos/pkg/machinery/api/machine"
 	"github.com/siderolabs/talos/pkg/machinery/config/configloader"
 	cfgres "github.com/siderolabs/talos/pkg/machinery/resources/config"
@@ -39,7 +41,8 @@ func main() {
 	nodeIP := flag.String("node-ip", "192.168.0.23", "node IP for SAN")
 	hostname := flag.String("hostname", "ares-worker-4", "hostname for cert CN/SAN")
 	cfgPath := flag.String("machine-config", "machine-config.yaml", "stub v1alpha1 machine config YAML")
-	kubeletImage := flag.String("kubelet-image", "ghcr.io/siderolabs/kubelet:v1.30.14", "current kubelet image to advertise")
+	kubeletImage := flag.String("kubelet-image", "ghcr.io/siderolabs/kubelet:v1.32.13", "current kubelet image to advertise")
+	talosVersion := flag.String("talos-version", "v1.11.6", "Talos version to advertise in MachineService.Version (used by upgrade-k8s compatibility check)")
 	flag.Parse()
 
 	tlsConf, err := buildTLSConfig(*caCertPath, *caKeyPath, *nodeIP, *hostname)
@@ -60,7 +63,7 @@ func main() {
 	grpcServer := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConf)))
 
 	cosiapi.RegisterStateServer(grpcServer, cosistate.NewState(st))
-	machine.RegisterMachineServiceServer(grpcServer, &unimplementedMachine{})
+	machine.RegisterMachineServiceServer(grpcServer, &machineServer{talosVersion: *talosVersion})
 
 	log.Printf("fake apid listening on %s (node=%s, hostname=%s)", *listen, *nodeIP, *hostname)
 
@@ -69,8 +72,27 @@ func main() {
 	}
 }
 
-type unimplementedMachine struct {
+type machineServer struct {
 	machine.UnimplementedMachineServiceServer
+
+	talosVersion string
+}
+
+func (s *machineServer) Version(_ context.Context, _ *emptypb.Empty) (*machine.VersionResponse, error) {
+	return &machine.VersionResponse{
+		Messages: []*machine.Version{
+			{
+				Metadata: &common.Metadata{},
+				Version: &machine.VersionInfo{
+					Tag:       s.talosVersion,
+					Os:        "linux",
+					Arch:      "arm64",
+					GoVersion: "go1.24.6",
+				},
+				Platform: &machine.PlatformInfo{Name: "metal", Mode: "metal"},
+			},
+		},
+	}, nil
 }
 
 func buildState(cfgPath, kubeletImage string) (state.State, error) {

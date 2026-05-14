@@ -26,6 +26,7 @@ subset of RPCs `upgrade-k8s` needs from a worker, so the command can complete.
 | `cosi.resource.State/Get` — `k8s/KubeletSpec/kubelet`       | Returns a `KubeletSpec` with `Image = ghcr.io/siderolabs/kubelet:v<current>`.                |
 | `cosi.resource.State/Get` — `config/MachineConfig/v1alpha1` | Returns a real worker's `v1alpha1` config (loaded from `machine-config.yaml`).               |
 | `cosi.resource.State/Watch` — `runtime/Service/kubelet`     | Sends one `Created` event with `Running=true, Healthy=true`, then holds the stream open.     |
+| `machine.MachineService/Version`                            | Returns the Talos tag from `-talos-version` so the v1.11+ `upgrade-k8s` compat check passes. |
 | `machine.MachineService/ImagePull`                          | Returns `Unimplemented`. `upgrade-k8s` already handles this with "not implemented, skipping". |
 | Everything else                                             | `Unimplemented`.                                                                              |
 
@@ -114,7 +115,8 @@ Expected fragment for the Ubuntu node:
 -node-ip         192.168.0.23                           IP for server cert SAN
 -hostname        ares-worker-4                          server cert CN + DNS SAN
 -machine-config  machine-config.yaml                    seed v1alpha1 config YAML
--kubelet-image   ghcr.io/siderolabs/kubelet:v1.30.14    image to advertise in KubeletSpec
+-kubelet-image   ghcr.io/siderolabs/kubelet:v1.32.13    image to advertise in KubeletSpec
+-talos-version   v1.11.6                                tag to advertise in MachineService.Version (compat check)
 ```
 
 The `-kubelet-image` value is what `upgrade-k8s` reads as the worker's

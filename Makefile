@@ -2,7 +2,8 @@ BIN := talos-fake-apid
 TARGET ?= 192.168.0.23
 TARGET_USER ?= ubuntu
 TARGET_DIR ?= /home/ubuntu/talos-fake-apid
-KUBELET_IMAGE ?= ghcr.io/siderolabs/kubelet:v1.31.14
+KUBELET_IMAGE ?= ghcr.io/siderolabs/kubelet:v1.32.13
+TALOS_VERSION ?= v1.11.6
 
 .PHONY: build
 build:
@@ -28,7 +29,7 @@ deploy: build stop-remote
 
 .PHONY: run-remote
 run-remote:
-	ssh $(TARGET_USER)@$(TARGET) 'cd $(TARGET_DIR) && sudo nohup ./$(BIN) -kubelet-image=$(KUBELET_IMAGE) > server.log 2>&1 < /dev/null &'
+	ssh $(TARGET_USER)@$(TARGET) 'cd $(TARGET_DIR) && sudo nohup ./$(BIN) -kubelet-image=$(KUBELET_IMAGE) -talos-version=$(TALOS_VERSION) > server.log 2>&1 < /dev/null &'
 
 .PHONY: stop-remote
 stop-remote:
