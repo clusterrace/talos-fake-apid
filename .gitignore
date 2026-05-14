@@ -32,6 +32,11 @@ go.work.sum
 .vscode/
 
 talos-fake-apid.zip
-proto/v1alpha1/*.go
-server.crt
-server.key
+
+# Compiled binary
+/talos-fake-apid
+
+# Cluster secrets — never commit
+ca.crt
+ca.key
+machine-config.yaml
