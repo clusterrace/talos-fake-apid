@@ -2,6 +2,7 @@ BIN := talos-fake-apid
 TARGET ?= 192.168.0.23
 TARGET_USER ?= ubuntu
 TARGET_DIR ?= /home/ubuntu/talos-fake-apid
+KUBELET_IMAGE ?= ghcr.io/siderolabs/kubelet:v1.31.14
 
 .PHONY: build
 build:
@@ -21,17 +22,17 @@ fetch-config:
 	talosctl -n 192.168.0.20 get mc v1alpha1 -o yaml | python3 -c "import yaml, sys; print(list(yaml.safe_load_all(sys.stdin))[0]['spec'])" > machine-config.yaml
 
 .PHONY: deploy
-deploy: build
+deploy: build stop-remote
 	ssh $(TARGET_USER)@$(TARGET) "mkdir -p $(TARGET_DIR)"
 	scp $(BIN) ca.crt ca.key machine-config.yaml $(TARGET_USER)@$(TARGET):$(TARGET_DIR)/
 
 .PHONY: run-remote
 run-remote:
-	ssh $(TARGET_USER)@$(TARGET) "cd $(TARGET_DIR) && sudo pkill -f $(BIN) || true; sudo nohup ./$(BIN) > server.log 2>&1 & sleep 1; echo started"
+	ssh $(TARGET_USER)@$(TARGET) 'cd $(TARGET_DIR) && sudo nohup ./$(BIN) -kubelet-image=$(KUBELET_IMAGE) > server.log 2>&1 < /dev/null &'
 
 .PHONY: stop-remote
 stop-remote:
-	ssh $(TARGET_USER)@$(TARGET) "sudo pkill -f $(BIN) || true"
+	ssh $(TARGET_USER)@$(TARGET) 'sudo killall $(BIN) 2>/dev/null; true'
 
 .PHONY: logs
 logs:
