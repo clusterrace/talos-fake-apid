@@ -115,8 +115,8 @@ Expected fragment for the Ubuntu node:
 -node-ip         192.168.0.23                           IP for server cert SAN
 -hostname        ares-worker-4                          server cert CN + DNS SAN
 -machine-config  machine-config.yaml                    seed v1alpha1 config YAML
--kubelet-image   ghcr.io/siderolabs/kubelet:v1.32.13    image to advertise in KubeletSpec
--talos-version   v1.11.6                                tag to advertise in MachineService.Version (compat check)
+-kubelet-image   ghcr.io/siderolabs/kubelet:v1.33.12    image to advertise in KubeletSpec
+-talos-version   v1.12.7                                tag to advertise in MachineService.Version (compat check)
 ```
 
 The `-kubelet-image` value is what `upgrade-k8s` reads as the worker's
