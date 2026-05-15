@@ -115,7 +115,7 @@ Expected fragment for the Ubuntu node:
 -node-ip         192.168.0.23                           IP for server cert SAN
 -hostname        ares-worker-4                          server cert CN + DNS SAN
 -machine-config  machine-config.yaml                    seed v1alpha1 config YAML
--kubelet-image   ghcr.io/siderolabs/kubelet:v1.33.12    image to advertise in KubeletSpec
+-kubelet-image   ghcr.io/siderolabs/kubelet:v1.34.8     image to advertise in KubeletSpec
 -talos-version   v1.12.7                                tag to advertise in MachineService.Version (compat check)
 ```
 

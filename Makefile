@@ -2,7 +2,7 @@ BIN := talos-fake-apid
 TARGET ?= 192.168.0.23
 TARGET_USER ?= ubuntu
 TARGET_DIR ?= /home/ubuntu/talos-fake-apid
-KUBELET_IMAGE ?= ghcr.io/siderolabs/kubelet:v1.33.12
+KUBELET_IMAGE ?= ghcr.io/siderolabs/kubelet:v1.34.8
 TALOS_VERSION ?= v1.12.7
 
 .PHONY: build

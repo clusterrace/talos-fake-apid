@@ -41,7 +41,7 @@ func main() {
 	nodeIP := flag.String("node-ip", "192.168.0.23", "node IP for SAN")
 	hostname := flag.String("hostname", "ares-worker-4", "hostname for cert CN/SAN")
 	cfgPath := flag.String("machine-config", "machine-config.yaml", "stub v1alpha1 machine config YAML")
-	kubeletImage := flag.String("kubelet-image", "ghcr.io/siderolabs/kubelet:v1.33.12", "current kubelet image to advertise")
+	kubeletImage := flag.String("kubelet-image", "ghcr.io/siderolabs/kubelet:v1.34.8", "current kubelet image to advertise")
 	talosVersion := flag.String("talos-version", "v1.12.7", "Talos version to advertise in MachineService.Version (used by upgrade-k8s compatibility check)")
 	flag.Parse()
 
